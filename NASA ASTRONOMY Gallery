@@ -65,7 +65,7 @@ const App = () => {
     <div className="app">
       <h1>NASA Astronomy Gallery</h1>
 
-      {/* Search and Filter */}
+      
       <input
         type="text"
         placeholder="Search by title or date (YYYY-MM-DD)"
@@ -78,7 +78,7 @@ const App = () => {
         <option value="video">Videos</option>
       </select>
 
-      {/* Display Images in a grid */}
+      
       <div className="image-grid">
         {loading ? (
           <p>Loading...</p>

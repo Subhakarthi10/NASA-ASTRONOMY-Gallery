@@ -1,0 +1,111 @@
+import React, { useState, useEffect } from 'react';
+import './App.css';
+
+
+const API_URL = 'https://api.nasa.gov/planetary/apod?api_key=DEMO_KEY&count=10'; 
+const App = () => {
+  const [images, setImages] = useState([]);
+  const [filteredImages, setFilteredImages] = useState([]);
+  const [isFavorite, setIsFavorite] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [mediaType, setMediaType] = useState('all');
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    
+    fetch(API_URL)
+      .then((response) => response.json())
+      .then((data) => {
+        setImages(data);
+        setFilteredImages(data);
+        setLoading(false);
+      });
+  }, []);
+
+  // Handle search by title or date
+  const handleSearch = (e) => {
+    const value = e.target.value;
+    setSearchTerm(value);
+    const filtered = images.filter((image) => {
+      return (
+        image.title.toLowerCase().includes(value.toLowerCase()) ||
+        image.date.includes(value)
+      );
+    });
+    setFilteredImages(filtered);
+  };
+
+  // Filter images by media type (image/video)
+  const handleFilter = (e) => {
+    const selectedType = e.target.value;
+    setMediaType(selectedType);
+    if (selectedType === 'all') {
+      setFilteredImages(images);
+    } else {
+      const filtered = images.filter((image) => image.media_type === selectedType);
+      setFilteredImages(filtered);
+    }
+  };
+
+  // Add image to favorites
+  const handleFavorite = (image) => {
+    const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
+    const isAlreadyFavorite = favorites.some((fav) => fav.date === image.date);
+
+    if (isAlreadyFavorite) {
+      const updatedFavorites = favorites.filter((fav) => fav.date !== image.date);
+      localStorage.setItem('favorites', JSON.stringify(updatedFavorites));
+    } else {
+      favorites.push(image);
+      localStorage.setItem('favorites', JSON.stringify(favorites));
+    }
+  };
+
+  return (
+    <div className="app">
+      <h1>NASA Astronomy Gallery</h1>
+
+      {/* Search and Filter */}
+      <input
+        type="text"
+        placeholder="Search by title or date (YYYY-MM-DD)"
+        value={searchTerm}
+        onChange={handleSearch}
+      />
+      <select onChange={handleFilter} value={mediaType}>
+        <option value="all">All</option>
+        <option value="image">Images</option>
+        <option value="video">Videos</option>
+      </select>
+
+      {/* Display Images in a grid */}
+      <div className="image-grid">
+        {loading ? (
+          <p>Loading...</p>
+        ) : (
+          filteredImages.map((image) => (
+            <div className="image-card" key={image.date}>
+              <h3>{image.title}</h3>
+              {image.media_type === 'image' ? (
+                <img src={image.url} alt={image.title} style={{ maxWidth: '100%' }} />
+              ) : (
+                <video width="100%" controls>
+                  <source src={image.url} type="video/mp4" />
+                  Your browser does not support the video tag.
+                </video>
+              )}
+              <p>{image.date}</p>
+              <button onClick={() => handleFavorite(image)}>
+                {localStorage.getItem('favorites')?.includes(image.date)
+                  ? '❤️ Remove from Favorites'
+                  : '❤️ Add to Favorites'}
+              </button>
+            </div>
+          ))
+        )}
+      </div>
+    </div>
+  );
+};
+
+export default App;

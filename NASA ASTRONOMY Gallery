@@ -22,7 +22,7 @@ const App = () => {
       });
   }, []);
 
-  // Handle search by title or date
+  
   const handleSearch = (e) => {
     const value = e.target.value;
     setSearchTerm(value);
@@ -35,7 +35,7 @@ const App = () => {
     setFilteredImages(filtered);
   };
 
-  // Filter images by media type (image/video)
+  
   const handleFilter = (e) => {
     const selectedType = e.target.value;
     setMediaType(selectedType);
@@ -47,7 +47,7 @@ const App = () => {
     }
   };
 
-  // Add image to favorites
+  
   const handleFavorite = (image) => {
     const favorites = JSON.parse(localStorage.getItem('favorites')) || [];
     const isAlreadyFavorite = favorites.some((fav) => fav.date === image.date);
